@@ -9,3 +9,4 @@ pytest-pep8
 pytest-cov
 sphinx
 pyusb
+pyqt5
