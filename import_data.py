@@ -1,8 +1,8 @@
 import os
-#import usb.core
+import usb.core
 import base64
 import datetime
-#import usb
+import usb
 
 
 # def get_usb():
