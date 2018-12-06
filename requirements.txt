@@ -11,3 +11,4 @@ sphinx
 pyusb
 usbid
 serial
+pyqt5
