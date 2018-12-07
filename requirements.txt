@@ -12,3 +12,4 @@ pyusb
 usbid
 serial
 pyqt5
+pandas
