@@ -1,8 +1,9 @@
 import os
-import usb.core
+#import usb.core
 import base64
 import datetime
-import usb
+#import usb
+import pandas as pd
 
 
 # def get_usb():
@@ -16,85 +17,83 @@ import usb
 #     return usb
 
 
-def make_folder(destination, name):
-    new_path = destination + '/' + name
-    if not os.path.exists(new_path):
-        os.makedirs(new_path)
-
-
 def find_folders(path):
-    filepaths = []
-    dirs = os.listdir(path)
-    for folder in dirs:
-        filepaths.append(path + "/" + str(folder))
-    return filepaths
-
-
-def get_data(filepaths):
-    files = []
-    for dir in filepaths:
-        new_dir = os.listdir(str(dir))
-        for file in new_dir:
-            if file.endswith(".BIN"):
-                if file.startswith("L"):
-                    files.append(filepaths[0] + '/' + str(file))
-        print(files)
-        return files
+    count = 0
+    file_names = []
+    for usb in path:
+        for (dir_name, dirs, files) in os.walk(usb):
+            for filename in files:
+                if filename.endswith('.BIN'):
+                    if filename.startswith("L"):
+                        count = count + 1
+                        file_names.append(os.path.join(dir_name, filename))
+    print('Files:', count)
+    if count == 0:
+        print("No files found")
+    return file_names
 
 
 def get_creation_date(files):
     days = []
+    time = []
+    year = []
     for dir_path in files:
         t = datetime.datetime.fromtimestamp(os.stat(dir_path).st_ctime)
+        time.append(t.strftime('%m-%d-%Y'))
         seconds = t.strftime("%s")
-        year = t.year
-        print(year)
+        year.append(t.year)
         days.append(int(seconds)/86400)
-    return t, days, year
+    return time, days, year
 
 
 def sort_creation(creation):
+    new_day = [0]
+    i = 0
     delta = [creation[i] - creation[i + 1] for i in range(len(creation) - 1)]
     for diff in delta:
         if diff <= -1:
-            print('New Day')
-    return delta
+            i = i + 1
+            new_day.append(i)
+        else:
+            new_day.append(i)
+    return new_day
 
 
 def open_bin_files(paths):
-    #i = 0
+    i = 0
+    spy = []
     for name in paths:
         with open(name, mode="rb") as file:
             file_content = file.read()
             i = i + 1
-            spy = base64.b64encode(file_content)
-            #print(result)
-            #print(i)
+            spy.append(base64.b64encode(file_content))
+        if i == 0:
+            print("Files were not properly encoded.")
+    print('Encoded:', i)
     return spy
 
 
-def combo(t, spy, season):
-    combo = {
-        #"Pin": ,
-        "Year": season,
-        "Date": t,
-        "Encoded .BIN file": spy
-    }
-    return combo
-
+def sort(filename, date, season, spy):
+    overall = pd.DataFrame({
+            "Filename": filename,
+            "Date": date,
+            "Year": season,
+            "Encoded .BIN file": spy
+        })
+    interval = list(overall.groupby('Date'))
+    print(interval)
+    return interval
 
 if __name__ == "__main__":
-    path = "/Volumes/MV1-1765"
-    new_path = "/Users/liameirose/Desktop"
-    folder_name = "Practice"
-    # make_folder(new_path, folder_name)
+    # path = ["/Users/liameirose/Desktop/Textbooks"]
+    # path = ["/Volumes/MV1-1765"]
+    path = ["rep_data"]
     # get_usb()
-    file_paths = find_folders(path)
-    files = get_data(file_paths)
+    files = find_folders(path)
     [dates, creation_date, year] = get_creation_date(files)
-    sort_creation(creation_date)
+    new_day = sort_creation(creation_date)
     result = open_bin_files(files)
-    combo(dates, result, year)
+    sorted = sort(files, dates, year, result)
 
 
 
