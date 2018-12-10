@@ -1,20 +1,24 @@
 import os
-#import usb.core
 import base64
 import datetime
-#import usb
 import pandas as pd
+import subprocess
 
 
-# def get_usb():
-#     for dev in usb.core.find(find_all=1):
-#         print
-#         "Device:", dev.filename
-#         print
-#         "  idVendor: %d (%s)" % (dev.idVendor, hex(dev.idVendor))
-#         print
-#         "  idProduct: %d (%s)" % (dev.idProduct, hex(dev.idProduct))
-#     return usb
+def find_usb():
+    process = subprocess.Popen(['df -h | awk \'{print $(NF-1),$NF}\''], stdout=subprocess.PIPE, shell=True)
+    out, err = process.communicate()
+    out = out.splitlines()[1:]
+    results = {}
+    for i in out:
+        tmp = i.split()
+        results[tmp[1]] = tmp[0]
+    dev = []
+    for key, value in results.items():
+        dev.append(key.decode('ASCII'))
+    usb = [s for s in dev if "MV" in s]
+    print(usb)
+    return usb
 
 
 def find_folders(path):
@@ -43,20 +47,7 @@ def get_creation_date(files):
         seconds = t.strftime("%s")
         year.append(t.year)
         days.append(int(seconds)/86400)
-    return time, days, year
-
-
-def sort_creation(creation):
-    new_day = [0]
-    i = 0
-    delta = [creation[i] - creation[i + 1] for i in range(len(creation) - 1)]
-    for diff in delta:
-        if diff <= -1:
-            i = i + 1
-            new_day.append(i)
-        else:
-            new_day.append(i)
-    return new_day
+    return time, year
 
 
 def open_bin_files(paths):
@@ -84,14 +75,14 @@ def sort(filename, date, season, spy):
     print(interval)
     return interval
 
+
 if __name__ == "__main__":
     # path = ["/Users/liameirose/Desktop/Textbooks"]
     # path = ["/Volumes/MV1-1765"]
-    path = ["rep_data"]
-    # get_usb()
+    # path = ["rep_data"]
+    path = find_usb()
     files = find_folders(path)
-    [dates, creation_date, year] = get_creation_date(files)
-    new_day = sort_creation(creation_date)
+    [dates, year] = get_creation_date(files)
     result = open_bin_files(files)
     sorted = sort(files, dates, year, result)
 
