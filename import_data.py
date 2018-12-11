@@ -31,17 +31,22 @@ def find_folders(paths):
                     if filename.startswith("L"):
                         count = count + 1
                         file_names.append(os.path.join(dir_name, filename))
+
     if count == 0:
+        result = False
         print("No files found")
-    print('Files:', count)
-    return file_names
+    if count > 0:
+        print('Files:', count)
+        result = True
+    print(result)
+    return result, file_names
 
 
 def get_pins(file_names):
     pin = []
     pin_keep = []
     for item in file_names:
-        pin.append(re.sub(r'.*MV1-', '', item))
+        pin.append(re.sub(r'.*-', '', item))
     for items in pin:
         pin_keep.append(items.split('/', 1)[0])
     return pin_keep
@@ -68,9 +73,12 @@ def open_bin_files(paths):
             i = i + 1
             spy.append(base64.b64encode(file_content))
     if i == 0:
+        bool = False
         print("Files were not properly encoded.")
-    print('Encoded:', i)
-    return spy
+    if i > 0:
+        bool = True
+        print('Encoded:', i)
+    return bool, spy
 
 
 def sort(filename, date, time, season, spy):
@@ -82,21 +90,19 @@ def sort(filename, date, time, season, spy):
         "Encoded .BIN file": spy
         })
     interval_date = list(overall.groupby('Date'))
-    print(interval_date)
     interval_pin = list(overall.groupby('Pin'))
-    #print(interval_pin)
     return interval_date, interval_pin
 
 
 if __name__ == "__main__":
-    # path = ["/Users/liameirose/Desktop/Textbooks"]
+    path = ["/Users/liameirose/Desktop/Textbooks"]
     # path = ["rep_data"]
-    path = find_usb()
-    bin_files = find_folders(path)
+    # path = find_usb()
+    [success, bin_files] = find_folders(path)
     pins = get_pins(bin_files)
     [times, dates, seasons] = get_creation_date(bin_files)
-    result = open_bin_files(bin_files)
-    [sort_date, sort_pin] = sort(pins, dates, times, seasons, result)
+    [boolean, binary] = open_bin_files(bin_files)
+    [sort_date, sort_pin] = sort(pins, dates, times, seasons, binary)
 
 
 
