@@ -52,7 +52,7 @@ def get_creation_date(files):
     year = []
     for dir_path in files:
         t = datetime.datetime.fromtimestamp(os.stat(dir_path).st_ctime)
-        time.append(t.strftime('%m-%d-%Y'))
+        time.append(t.strftime('%m-%d-%Y %H:%M:%S'))
         year.append(t.year)
     return time, year
 
@@ -79,7 +79,9 @@ def sort(filename, date, season, spy):
         "Encoded .BIN file": spy
         })
     interval_date = list(overall.groupby('Date'))
+    print(interval_date)
     interval_pin = list(overall.groupby('Pin'))
+    print(interval_pin)
     return interval_date, interval_pin
 
 
