@@ -49,12 +49,14 @@ def get_pins(file_names):
 
 def get_creation_date(files):
     time = []
+    date = []
     year = []
     for dir_path in files:
         t = datetime.datetime.fromtimestamp(os.stat(dir_path).st_ctime)
-        time.append(t.strftime('%m-%d-%Y %H:%M:%S'))
+        time.append(t.strftime('%H:%M:%S'))
+        date.append(t.strftime('%m-%d-%Y'))
         year.append(t.year)
-    return time, year
+    return time, date, year
 
 
 def open_bin_files(paths):
@@ -71,17 +73,18 @@ def open_bin_files(paths):
     return spy
 
 
-def sort(filename, date, season, spy):
+def sort(filename, date, time, season, spy):
     overall = pd.DataFrame({
         "Pin": filename,
         "Date": date,
+        "Time": time,
         "Year": season,
         "Encoded .BIN file": spy
         })
     interval_date = list(overall.groupby('Date'))
     print(interval_date)
     interval_pin = list(overall.groupby('Pin'))
-    print(interval_pin)
+    #print(interval_pin)
     return interval_date, interval_pin
 
 
@@ -91,9 +94,9 @@ if __name__ == "__main__":
     path = find_usb()
     bin_files = find_folders(path)
     pins = get_pins(bin_files)
-    [dates, seasons] = get_creation_date(bin_files)
+    [times, dates, seasons] = get_creation_date(bin_files)
     result = open_bin_files(bin_files)
-    [sort_date, sort_pin] = sort(pins, dates, seasons, result)
+    [sort_date, sort_pin] = sort(pins, dates, times, seasons, result)
 
 
 
