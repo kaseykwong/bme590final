@@ -1,23 +1,48 @@
-from import_data import find_folders, get_creation_date
+from import_data import find_folders, get_pins
+from import_data import get_creation_date, sort
 
 
 def test_find_folders():
     path = ['rep_data']
-    filenames = find_folders(path)
-    assert filenames == ['rep_data/L11.BIN', 'rep_data/L12.BIN',
-                         'rep_data/L0.BIN', 'rep_data/L1.BIN',
-                         'rep_data/L2.BIN']
+    [boolean, file_names] = find_folders(path)
+    assert [boolean, file_names] == [True, ['rep_data/L11.BIN', 'rep_data/L12.BIN',
+                                            'rep_data/L0.BIN', 'rep_data/L1.BIN',
+                                            'rep_data/L2.BIN']]
+    path2 = []
+    [boolean2, file_names2] = find_folders(path2)
+    assert [boolean2, file_names2] == [False, []]
+
+
+def test_get_pins():
+    files = ['rep_data/L11.BIN', 'Volumes/MV1-1756',
+             'Volumes/MV1-1756/fake.txt',
+             'Volumes/TX1-5786/fake.txt']
+    pins = get_pins(files)
+    assert pins == ['rep_data', '1756', '1756', '5786']
 
 
 def test_get_creation_date():
     file_path1 = ['rep_data/L0.BIN']
-    [date1, year1] = get_creation_date(file_path1)
-    assert [date1, year1] == [['12-06-2018'], [2018]]
+    [time1, date1, year1] = get_creation_date(file_path1)
+    assert [time1, date1, year1] == [['20:35:38'], ['12-06-2018'], [2018]]
 
     file_path2 = ['rep_data/L1.BIN']
-    [date2, year2] = get_creation_date(file_path2)
-    assert [date2, year2] == [['12-06-2018'], [2018]]
+    [time2, date2, year2] = get_creation_date(file_path2)
+    assert [time2, date2, year2] == [['20:35:38'], ['12-06-2018'], [2018]]
 
     file_path3 = ['rep_data/L0.BIN', 'rep_data/L1.BIN']
-    [date3, year3] = get_creation_date(file_path3)
-    assert [date3, year3] == [['12-06-2018', '12-06-2018'], [2018, 2018]]
+    [time3, date3, year3] = get_creation_date(file_path3)
+    assert [time3, date3, year3] == [['20:35:38', '20:35:38'],
+                                     ['12-06-2018', '12-06-2018'],
+                                     [2018, 2018]]
+
+
+def test_sort():
+    pin1 = ['123', '124', '123']
+    date1 = ['10-05-1994', '10-05-1994', '10-07-1994']
+    time1 = ['00:00:00', '00:00:01', '00:00:02']
+    season1 = ['1994', '1994', '1994']
+    bin1 = ['abc', 'def', 'ghi']
+    [sort_date1, sort_pin1] = sort(pin1, date1, time1, season1, bin1)
+    assert [sort_date1[0][0], sort_pin1[0][0]] == ['10-05-1994', '123']
+    assert [sort_date1[1][0], sort_pin1[1][0]] == ['10-07-1994', '124']
