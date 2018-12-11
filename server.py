@@ -8,11 +8,12 @@ import logging
 connect("mongodb://almostdone:2tired@ds145148.mlab.com:45148/bme590final")
 app = Flask(__name__)
 
+
 class HeadData(MongoModel):
-    season = fields.DateTimeField()
-    pin_number = fields.IntegerField(primary_key=True)
+    season = fields.IntegerField()
+    pin_number = fields.CharField(primary_key=True)
     date_measured = fields.DateTimeField()
-    encoded_binary = fields.BinaryField()
+    encoded_binary = fields.CharField()
 
 
 @app.route("/api/download", methods=["POST"])
@@ -38,7 +39,9 @@ def check_pin_date(file_info):
     date = file_info['Date']
 
     for hd in HeadData.objects.raw({"date_measured": date}):
+        print(hd.pin_number)
         if hd.pin_number == pin:
+            print('data for ' + str(pin) + ' at ' + str(date) + ' already exists.')
             return True
     return False
 
@@ -48,5 +51,6 @@ def create_new(file_info):
     szn = file_info['Year']
     date = file_info['Date']
     data = file_info['Encoded .BIN file']
-    hd = HeadData(szn,pin,date,data)
+    hd = HeadData(szn, pin, date, data)
     hd.save()
+    return hd
