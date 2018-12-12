@@ -7,10 +7,17 @@ import re
 
 
 def find_usb():
-    process = subprocess.Popen(['df -h | awk \'{print $(NF-1),$NF}\''], stdout=subprocess.PIPE, shell=True)
+    """
+    Function looks for paths of devices with the MV1 tag
+
+    Returns:
+        luck_usb: list of device file paths with the MV1 tag
+    """
+    process = subprocess.Popen(['df -h | awk \'{print $(NF-1),$NF}\''],
+                               stdout=subprocess.PIPE, shell=True)
     out, err = process.communicate()
     out = out.splitlines()[1:]
-    results = {}
+    results = []
     for i in out:
         tmp = i.split()
         results[tmp[1]] = tmp[0]
@@ -22,6 +29,16 @@ def find_usb():
 
 
 def find_folders(paths):
+    """
+    Function finds all .BIN folders in given path
+
+    Args:
+        paths: list of file paths
+    Returns:
+        result: boolean to determine if files were found.
+                True is files were found. False if not.
+        file_names: list of full binary file paths.
+    """
     count = 0
     file_names = []
     for usb in paths:
@@ -42,6 +59,14 @@ def find_folders(paths):
 
 
 def get_pins(file_names):
+    """
+    Get pins from USB device name (must be format MV1-****)
+
+    Args:
+        file_names: list of binary file paths
+    Returns:
+        pin_keep: list of pin numbers or devices
+    """
     pin = []
     pin_keep = []
     for item in file_names:
@@ -52,6 +77,16 @@ def get_pins(file_names):
 
 
 def get_creation_date(files):
+    """
+    Determines file creation parameters for each file.
+
+    Args:
+        files: list of binary file paths
+    Returns:
+        time: time file was created
+        date: date file was created
+        year: year file was created
+    """
     time = []
     date = []
     year = []
@@ -64,6 +99,16 @@ def get_creation_date(files):
 
 
 def open_bin_files(paths):
+    """
+    Opens and encodes binary files
+
+    Args:
+        paths: list of binary file paths
+    Returns:
+        boolean: boolean to determine if files were found.
+                True is files were encoded. False if not.
+        spy: list of encoded binary files
+    """
     i = 0
     spy = []
     for name in paths:
@@ -72,17 +117,32 @@ def open_bin_files(paths):
             i = i + 1
             spy.append(base64.b64encode(file_content))
     if i == 0:
-        bool = False
+        boolean = False
         print("Files were not properly encoded.")
     if i > 0:
-        bool = True
+        boolean = True
         print('Encoded:', i)
-    return bool, spy
+    return boolean, spy
 
 
-def sort(filename, date, time, season, spy):
+def sort(pin_name, date, time, season, spy):
+    """
+    Creates data frame of results. Sorts by date and pin.
+
+    Args:
+        pin_name: list of USB pins
+        time: list  of times files were created
+        date: list of dates that files were created
+        season: list of years that files were created
+        spy: list of encoded binary files
+
+    Returns:
+        overall: date frame containing necessary file info
+        interval_date: data sorted by file creation date
+        interval_pin: data sorted by USB pin
+    """
     overall = pd.DataFrame({
-        "Pin": filename,
+        "Pin": pin_name,
         "Date": date,
         "Time": time,
         "Year": season,
@@ -94,17 +154,10 @@ def sort(filename, date, time, season, spy):
 
 
 if __name__ == "__main__":
-    # path = ["/Users/liameirose/Desktop/Textbooks"]
     path = ["rep_data"]
     # path = find_usb()
     [success, bin_files] = find_folders(path)
     pins = get_pins(bin_files)
     [times, dates, seasons] = get_creation_date(bin_files)
-    [boolean, binary] = open_bin_files(bin_files)
+    [fail, binary] = open_bin_files(bin_files)
     [total, sort_date, sort_pin] = sort(pins, dates, times, seasons, binary)
-
-
-
-
-
-
