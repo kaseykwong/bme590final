@@ -1,12 +1,16 @@
 from import_data import find_folders, get_pins
 from import_data import get_creation_date, sort
+from import_data import open_bin_files
+import base64
 
 
 def test_find_folders():
     path = ['rep_data']
     [boolean, file_names] = find_folders(path)
-    assert [boolean, file_names] == [True, ['rep_data/L11.BIN', 'rep_data/L12.BIN',
-                                            'rep_data/L0.BIN', 'rep_data/L1.BIN',
+    assert [boolean, file_names] == [True, ['rep_data/L11.BIN',
+                                            'rep_data/L12.BIN',
+                                            'rep_data/L0.BIN',
+                                            'rep_data/L1.BIN',
                                             'rep_data/L2.BIN']]
     path2 = []
     [boolean2, file_names2] = find_folders(path2)
@@ -38,6 +42,21 @@ def test_get_creation_date():
                                      [2018, 2018]]
 
 
+def test_open_bin_files():
+    paths1 = ['rep_data/L0.BIN', 'rep_data/L11.BIN', 'rep_data/L12.BIN']
+    [boolean1, encode1] = open_bin_files(paths1)
+    assert base64.b64encode(base64.b64decode(encode1[0])) == encode1[0]
+    assert base64.b64encode(base64.b64decode(encode1[1])) == encode1[1]
+    assert base64.b64encode(base64.b64decode(encode1[2])) == encode1[2]
+    assert boolean1 is True
+
+    paths2 = []
+    [boolean2, encode2] = open_bin_files(paths2)
+    print(encode2)
+    assert encode2 == []
+    assert boolean2 is False
+
+
 def test_sort():
     pin1 = ['123', '124', '123']
     date1 = ['10-05-1994', '10-05-1994', '10-07-1994']
@@ -45,5 +64,7 @@ def test_sort():
     season1 = ['1994', '1994', '1994']
     bin1 = ['abc', 'def', 'ghi']
     [overall1, sort_date1, sort_pin1] = sort(pin1, date1, time1, season1, bin1)
-    assert [overall1.loc[0, "Pin"], sort_date1[0][0], sort_pin1[0][0]] == ['123', '10-05-1994', '123']
-    assert [overall1.loc[1, "Pin"], sort_date1[1][0], sort_pin1[1][0]] == ['124', '10-07-1994', '124']
+    assert [overall1.loc[0, "Pin"], sort_date1[0][0], sort_pin1[0][0]] == \
+           ['123', '10-05-1994', '123']
+    assert [overall1.loc[1, "Pin"], sort_date1[1][0], sort_pin1[1][0]] == \
+           ['124', '10-07-1994', '124']
