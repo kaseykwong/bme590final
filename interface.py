@@ -2,7 +2,6 @@ import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QMessageBox, QVBoxLayout, QCheckBox, QLabel, QScrollArea, QGroupBox
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot, QSize, Qt
-from import_data import make_folder
 
 
 class HIEApp(QMainWindow):
@@ -89,12 +88,10 @@ class HIEApp(QMainWindow):
         else:
             print("Unchecked")
 
-
     def buildPopUp(self):
         self.popUp1 = popUp('Select devices to pull data from:')
         self.popUp1.setGeometry(300, 300, 400, 400)
         self.popUp1.show()
-
 
 
 class popUp(QWidget):
@@ -107,11 +104,10 @@ class popUp(QWidget):
         self.initUI()
         # self.checkList = []
 
-
-
     def initUI(self):
         self.checkList = []
         self.selected = []
+        self.namesSelected = []
         self.createLayout_Container()
         self.layout_All = QVBoxLayout(self)
         self.layout_All.addWidget(self.scrollarea)
@@ -133,7 +129,6 @@ class popUp(QWidget):
         deselectAll.move(300, 70)
         deselectAll.resize(130, 45)
         deselectAll.clicked.connect(self.uncheckAll)
-
 
         self.show()
 
@@ -196,66 +191,92 @@ class popUp(QWidget):
             op1 = self.checkList[x]
             if op1.isChecked():
                 self.selected.append(op1)
+                self.namesSelected.append(self.usbList[x])
                 print(op1)
 
     def buildStatusWindow(self):
         print(len(self.selected))
-        self.status1 = StatusWindow()
+        self.status1 = StatusWindow(self.namesSelected)
         self.status1.setGeometry(300, 300, 400, 400)
         self.status1.show()
 
 
 class StatusWindow(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, list, parent=None):
         super().__init__(parent)
+        self.selected = list
         self.title = 'Head Impact Exposure'
         self.left = 300
         self.top = 300
         self.width = 640
         self.height = 400
+        self.names = list
+        self.done = QMessageBox
         self.initUI()
-        # self.downloadingList = downList
-
 
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        self.doneDownload = True
-        self.downloadinglist = ['fake1', 'fake2']
+        self.doneDownload = False
+        #self.downloadinglist = ['fake1', 'fake2']
+        print(self.selected)
+        # for i in range(len(self.selected)):
+        #    self.downloadingList.append(self.selected[i])
         locx = 50
         locy = 50
         b = QLabel(self)
         b.setText("Downloading data from:")
         b.move(locx, locy)
 
-        for y in range(len(self.downloadinglist)):
-            locy += 50
+        for y in range(len(self.names)):
+            locy += 20
             c = QLabel(self)
-            c.setText(str(self.downloadinglist[y]))
+            c.setText(str(self.names[y]))
             c.move(locx, locy)
 
         # print(len(self.downloadingList))
 
-        cancelButton = QPushButton('Cancel', self)
-        cancelButton.setToolTip('download data')
-        cancelButton.move(self.width / 2 - 40, 40)
-        cancelButton.resize(130, 55)
-        cancelButton.clicked.connect(self.cancelDownload)
+        # cancelButton = QPushButton('Cancel', self)
+        # cancelButton.setToolTip('download data')
+        # cancelButton.move(self.width / 2 - 40, 40)
+        # cancelButton.resize(130, 55)
+        # cancelButton.clicked.connect(self.cancelDownload)
 
-        while not self.doneDownload:
-            # notice that downloading from usbs X, y, z
-            self.show()
+        # x = 0
+        # while self.doneDownload is False:
+        # # while x > 100000000000:
+        #     # notice that downloading from usbs X, y, z
+        #     if x == 0:
+        #         self.incomplete()
+        #     x += 1
 
-        self.complete()
-        self.close()
+        # counter = 1
+        # while counter > 0:
+        #     counter += 1
+        #     if self.doneDownload:
+        #         break
+        #     elif not self.doneDownload and counter == 2:
+        #         self.incomplete()
+
+        if self.doneDownload:
+            self.complete()
+        else:
+            self.incomplete()
+
+        # self.complete()
+        # if self.done == QMessageBox.Ok:
+        #     self.close()
+
+    def incomplete(self):
+        self.show()
+        # self.doneDownload = True
 
     def complete(self):
-        # opens next window showing completed downloads and option to delete
-        self.close()
-
-    def cancelDownload(self):
-        # whatever needs to happen to stop download on server side
+        output = 'Successfuly downloaded data from:'
+        for i in range(len(self.names)):
+            output += str('\n' + self.names[i])
+        self.done = QMessageBox.question(self, 'Complete', output, QMessageBox.Ok, QMessageBox.Ok)
         self.close()
 
 
