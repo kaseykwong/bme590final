@@ -38,7 +38,6 @@ def find_folders(paths):
     if count > 0:
         print('Files:', count)
         result = True
-    print(result)
     return result, file_names
 
 
@@ -91,18 +90,18 @@ def sort(filename, date, time, season, spy):
         })
     interval_date = list(overall.groupby('Date'))
     interval_pin = list(overall.groupby('Pin'))
-    return interval_date, interval_pin
+    return overall, interval_date, interval_pin
 
 
 if __name__ == "__main__":
-    path = ["/Users/liameirose/Desktop/Textbooks"]
-    # path = ["rep_data"]
+    # path = ["/Users/liameirose/Desktop/Textbooks"]
+    path = ["rep_data"]
     # path = find_usb()
     [success, bin_files] = find_folders(path)
     pins = get_pins(bin_files)
     [times, dates, seasons] = get_creation_date(bin_files)
     [boolean, binary] = open_bin_files(bin_files)
-    [sort_date, sort_pin] = sort(pins, dates, times, seasons, binary)
+    [total, sort_date, sort_pin] = sort(pins, dates, times, seasons, binary)
 
 
 
