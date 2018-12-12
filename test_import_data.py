@@ -16,9 +16,10 @@ def test_find_folders():
 def test_get_pins():
     files = ['rep_data/L11.BIN', 'Volumes/MV1-1756',
              'Volumes/MV1-1756/fake.txt',
-             'Volumes/TX1-5786/fake.txt']
+             'Volumes/TX1-5786/fake.txt',
+             'Volumes/MV1/fake.txt']
     pins = get_pins(files)
-    assert pins == ['rep_data', '1756', '1756', '5786']
+    assert pins == ['rep_data', '1756', '1756', '5786', 'Volumes']
 
 
 def test_get_creation_date():
@@ -43,6 +44,6 @@ def test_sort():
     time1 = ['00:00:00', '00:00:01', '00:00:02']
     season1 = ['1994', '1994', '1994']
     bin1 = ['abc', 'def', 'ghi']
-    [sort_date1, sort_pin1] = sort(pin1, date1, time1, season1, bin1)
-    assert [sort_date1[0][0], sort_pin1[0][0]] == ['10-05-1994', '123']
-    assert [sort_date1[1][0], sort_pin1[1][0]] == ['10-07-1994', '124']
+    [overall1, sort_date1, sort_pin1] = sort(pin1, date1, time1, season1, bin1)
+    assert [overall1.loc[0, "Pin"], sort_date1[0][0], sort_pin1[0][0]] == ['123', '10-05-1994', '123']
+    assert [overall1.loc[1, "Pin"], sort_date1[1][0], sort_pin1[1][0]] == ['124', '10-07-1994', '124']
