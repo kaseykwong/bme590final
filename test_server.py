@@ -1,5 +1,7 @@
-from server import check_input, create_new, check_exist
+from server import check_input, create_new, check_exist, download_all
 import pytest
+import requests
+import pandas as pd
 
 
 def test_exist():
@@ -82,3 +84,33 @@ def test_input():
               'Time': "11:02:53"
               }
     assert check_input(input5) is False
+
+
+# def test_all():
+#     filename = [5, 5, 5, 6, 6, 6]
+#     date = ["10-2-2016", "10-2-2016", "10-2-2016", "10-2-2016", "10-2-2016", "10-2-2016"]
+#     time = ["10:10:29", "10:10:32", "10:10:40", "10:10:50", "10:10:55", "10:10:59"]
+#     season = [2016, 2016, 2016, 2016, 2016, 2016]
+#     spy = ["ASDFAEGIAEG", "ASDFOAEWG", "ADSGA", "WEGIEHG", "ASGIAB", "AEGIABN"]
+#     input1 = pd.DataFrame({
+#         "Pin": filename,
+#         "Date": date,
+#         "Time": time,
+#         "Year": season,
+#         "Encoded .BIN file": spy
+#         })
+#     msg = "All files downloaded"
+#     assert download_all(input1) == msg
+
+
+if __name__ == "__main__":
+    # file_info = {'Encoded .BIN file': 'ASDFWEAGJ',
+    #              'Pin': 1122,
+    #              'Year': 2018,
+    #              'Date': "10-23-2017",
+    #              'Time': "11:02:53"
+    #              }
+    # r = requests.post("http://127.0.0.1:5000/api/download", json=file_info)
+    # test_all()
+    test_exist()
+    test_input()
