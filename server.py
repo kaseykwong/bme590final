@@ -1,10 +1,9 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request
 from pymodm import connect
 from pymodm import MongoModel, fields, errors
 import pymodm
 import requests
 from datetime import datetime
-import os
 import logging
 
 connect("mongodb://almostdone:2tired@ds145148.mlab.com:45148/bme590final")
@@ -25,6 +24,7 @@ def download():
     Flask server function to download individual files with parsed data
     :return:
     """
+    set_logging()
     files = request.get_json()
     if check_input(files) is True:
         if check_exist(files) is False:
@@ -35,7 +35,24 @@ def download():
             t = files['Time']
             hd = HeadData(szn, pin, date, data, t)
             hd.save()
-    return
+            file_info = {'Pin': pin,
+                         'Year': szn,
+                         'Date': date,
+                         'Time': t,
+                         'Encoded .BIN file': data
+                         }
+            logging.info(file_info)
+            msg = "Data saved"
+            print(msg)
+            return msg
+        else:
+            msg = "Data file already exists"
+            print(msg)
+            return "Data already exists"
+    else:
+        msg = "Data input not correct"
+        print(msg)
+        return "Data input not correct"
 
 
 def download_all(files):
@@ -55,7 +72,7 @@ def download_all(files):
                      "Time": time,
                      "Year": year,
                      "Encoded .BIN file": data}
-        r = requests.post("http://127.0.0.1/5000/api/download", json=file_info)
+        r = requests.post("http://127.0.0.1:5000/api/download", json=file_info)
     msg = "All files downloaded"
     return msg
 
@@ -128,6 +145,7 @@ def create_new(file_info):
     :param file_info:
     :return:
     """
+    set_logging()
     pin = file_info['Pin']
     szn = file_info['Year']
     date = file_info['Date']
@@ -135,12 +153,20 @@ def create_new(file_info):
     t = file_info['Time']
     hd = HeadData(szn, pin, date, data, t)
     hd.save()
+    logging.info(file_info)
     return hd
 
 
-# def client(file_info):
-#     r = requests.post("http://127.0.0.1/5000/api/download", json=file_info)
-#     return
+def set_logging():
+    app.logger.disabled = True
+    log = logging.getLogger('werkzeug')
+    log.disabled = True
+    logging.basicConfig(filename='data_server.txt',
+                        format='%(asctime)s %(message)s',
+                        datefmt='%m/%d/%Y %I:%M:%S %p',
+                        level=logging.DEBUG)
+    return
+
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000)
