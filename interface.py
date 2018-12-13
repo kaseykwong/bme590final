@@ -285,7 +285,7 @@ class popUp(QWidget):
 
         """
         self.getChecked()
-        self.buildStatusWindow()
+        # self.buildStatusWindow()
         [success, bin_files] = import_data.find_folders(self.namesSelected)
         if success is False:
             QMessageBox.question(self, 'No files found',
@@ -298,7 +298,10 @@ class popUp(QWidget):
                                  QMessageBox.Ok, QMessageBox.Ok)
         [total, sort_date, sort_pin] = import_data.sort(pins, dates, times,
                                                         seasons, binary)
+        self.total = total
+
         self.close()
+        self.buildStatusWindow()
 
     def getChecked(self):
         """
@@ -327,7 +330,7 @@ class popUp(QWidget):
         """
         print(len(self.selected))
         self.close()
-        self.status1 = StatusWindow(self.namesSelected)
+        self.status1 = StatusWindow(self.namesSelected, self.total)
 
 
 class StatusWindow(QWidget):
@@ -336,19 +339,21 @@ class StatusWindow(QWidget):
         being pulled from during the downloading process
     """
 
-    def __init__(self, list1):
+    def __init__(self, list1, total):
         """
         Function initiates StatusWindow
 
         Args:
             list1: list containing the names of the devices data is being
                 downloaded from
+            total: boolean that confirms all document have been transferred
         """
         super().__init__()
         self.selected = list
         self.title = 'Head Impact Exposure'
         self.names = list1
         self.done = QMessageBox
+        self.total = total
         self.initUI()
 
     def initUI(self):
@@ -362,6 +367,7 @@ class StatusWindow(QWidget):
         self.setWindowTitle(self.title)
         self.setFixedWidth(400)
         self.setFixedHeight(500)
+        self.result = import_data.call_server(self.total)
         findCenter = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
         findCenter.moveCenter(centerPoint)
@@ -375,7 +381,6 @@ class StatusWindow(QWidget):
         font4.setBold(True)
         font4.setPointSize(10)
 
-        self.doneDownload = False
         print(self.selected)
         locx = 50
         locy = 50
@@ -394,7 +399,8 @@ class StatusWindow(QWidget):
                 locy = 50
 
         self.show()
-        self.complete()
+        if self.result is True:
+            self.complete()
 
     def complete(self):
         """

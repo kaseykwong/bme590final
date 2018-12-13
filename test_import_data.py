@@ -62,7 +62,7 @@ def test_sort():
     date1 = ['10-05-1994', '10-05-1994', '10-07-1994']
     time1 = ['00:00:00', '00:00:01', '00:00:02']
     season1 = ['1994', '1994', '1994']
-    bin1 = ['abc', 'def', 'ghi']
+    bin1 = [b'abc', b'def', b'ghi']
     [overall1, sort_date1, sort_pin1] = sort(pin1, date1, time1, season1, bin1)
     assert [overall1.loc[0, "Pin"], sort_date1[0][0], sort_pin1[0][0]] == \
            ['123', '10-05-1994', '123']

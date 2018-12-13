@@ -4,6 +4,7 @@ import datetime
 import pandas as pd
 import subprocess
 import re
+from server import download_all
 
 
 def find_usb():
@@ -140,16 +141,25 @@ def sort(pin_name, date, time, season, spy):
         interval_date: data sorted by file creation date
         interval_pin: data sorted by USB pin
     """
+    encoded = []
+    for things in spy:
+        encoded.append(things.decode('ASCII'))
     overall = pd.DataFrame({
         "Pin": pin_name,
         "Date": date,
         "Time": time,
         "Year": season,
-        "Encoded .BIN file": spy
+        "Encoded .BIN file": encoded
         })
     interval_date = list(overall.groupby('Date'))
     interval_pin = list(overall.groupby('Pin'))
+    print(type(overall))
     return overall, interval_date, interval_pin
+
+
+def call_server(overall):
+    result = download_all(overall)
+    return result
 
 
 if __name__ == "__main__":
@@ -160,3 +170,4 @@ if __name__ == "__main__":
     [times, dates, seasons] = get_creation_date(bin_files)
     [fail, binary] = open_bin_files(bin_files)
     [total, sort_date, sort_pin] = sort(pins, dates, times, seasons, binary)
+    end = call_server(total)

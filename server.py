@@ -41,8 +41,7 @@ def download():
             file_info = {'pin_number': pin,
                          'Year': szn,
                          'Date': date,
-                         'Time': t,
-                         'Encoded .BIN file': data
+                         'Time': t
                          }
             logging.info(file_info)
             msg = "Data saved"
