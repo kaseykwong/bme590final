@@ -29,17 +29,13 @@ def test_get_pins():
 def test_get_creation_date():
     file_path1 = ['rep_data/L0.BIN']
     [time1, date1, year1] = get_creation_date(file_path1)
-    assert [time1, date1, year1] == [['20:35:38'], ['12-06-2018'], [2018]]
-
-    file_path2 = ['rep_data/L1.BIN']
-    [time2, date2, year2] = get_creation_date(file_path2)
-    assert [time2, date2, year2] == [['20:35:38'], ['12-06-2018'], [2018]]
+    assert date1 == ['12-13-2018']
+    assert year1 == [2018]
 
     file_path3 = ['rep_data/L0.BIN', 'rep_data/L1.BIN']
     [time3, date3, year3] = get_creation_date(file_path3)
-    assert [time3, date3, year3] == [['20:35:38', '20:35:38'],
-                                     ['12-06-2018', '12-06-2018'],
-                                     [2018, 2018]]
+    assert date3 == ['12-13-2018', '12-13-2018']
+    assert year3 == [2018, 2018]
 
 
 def test_open_bin_files():
