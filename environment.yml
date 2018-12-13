@@ -1,0 +1,15 @@
+name: final4-test-environment
+dependencies:
+        - flask
+        - pytest
+        - ipython
+        - numpy
+        - pytest-pep8
+        - pytest-cov
+        - sphinx
+        - pandas
+        - pip:
+            - gunicorn
+            - pymodm
+            - serial
+            - pyqt5
