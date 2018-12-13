@@ -17,13 +17,12 @@ def find_usb():
                                stdout=subprocess.PIPE, shell=True)
     out, err = process.communicate()
     out = out.splitlines()[1:]
-    results = []
-    for i in out:
-        tmp = i.split()
-        results[tmp[1]] = tmp[0]
+    out2 = []
     dev = []
-    for key, value in results.items():
-        dev.append(key.decode('ASCII'))
+    for i in out:
+        out2.append(i.decode('ASCII'))
+    for j in out2:
+        dev.append(j.split(' ', 1)[1])
     luck_usb = [s for s in dev if "MV" in s]
     return luck_usb
 
@@ -154,8 +153,8 @@ def sort(pin_name, date, time, season, spy):
 
 
 if __name__ == "__main__":
-    path = ["rep_data"]
-    # path = find_usb()
+    # path = ["rep_data"]
+    path = find_usb()
     [success, bin_files] = find_folders(path)
     pins = get_pins(bin_files)
     [times, dates, seasons] = get_creation_date(bin_files)

@@ -1,9 +1,11 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QMessageBox, QVBoxLayout, QCheckBox, QLabel, QScrollArea, QGroupBox, QDesktopWidget, QGridLayout
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, \
+    QPushButton, QAction, QMessageBox, QVBoxLayout, QCheckBox, \
+    QLabel, QScrollArea, QGroupBox, QDesktopWidget, QGridLayout
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import pyqtSlot, QSize, Qt
 import import_data
-import server
+# import server
 
 
 class HIEApp(QMainWindow):
@@ -66,10 +68,11 @@ class HIEApp(QMainWindow):
         button.resize(300, 45)
         button.clicked.connect(self.b1_click)
 
-
         b = QLabel(self)
-        b.setText('This application can be used as a multi-unit \ndownloading, '
-                  'logging, and storage \nmanagement for the DASHR head impact \n'
+        b.setText('This application can be used as a multi-unit \n'
+                  'downloading, '
+                  'logging, and storage \nmanagement '
+                  'for the DASHR head impact \n'
                   'exposure sensor. \nClick below to get started.')
         b.setFont(font1)
         b.setStyleSheet("color: white")
@@ -87,10 +90,15 @@ class HIEApp(QMainWindow):
             QMessageBox: with info on how to use application
 
         """
-        QMessageBox.question(self, 'Info', 'To begin, click on the Search for Data button.  You will then be '
-                                   'prompted to select devices to pull data from.  Click the Begin '
-                                   'Downloading Data button to begin transferring files from the devices '
-                                   'to the database.', QMessageBox.Close, QMessageBox.Close)
+        QMessageBox.question(self, 'Info', 'To begin, click on the Search for '
+                                           'Data button.  You will then be '
+                                   'prompted to select devices to pull data '
+                                           'from.  Click the Begin '
+                                   'Downloading Data button to begin '
+                                           'transferring files from the '
+                                           'devices '
+                                   'to the database.', QMessageBox.Close,
+                             QMessageBox.Close)
 
     @pyqtSlot()
     def b1_click(self):
@@ -98,11 +106,15 @@ class HIEApp(QMainWindow):
         Function creates message box to confirm user is ready to begin
 
         Returns:
-            QMessageBox: asking the user to confirm that all necessary devices are connected
+            QMessageBox: asking the user to confirm that all necessary devices
+            are connected
 
         """
-        launch = QMessageBox.question(self, 'Ready?', 'Are all of the necessary devices plugged in?',
-                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        launch = QMessageBox.question(self, 'Ready?', 'Are all of the '
+                                                      'necessary '
+                                                      'devices plugged in?',
+                                      QMessageBox.Yes | QMessageBox.No,
+                                      QMessageBox.No)
         if launch == QMessageBox.Yes:
             self.buildPopUp()
 
@@ -136,19 +148,18 @@ class popUp(QWidget):
         b.setFont(font3)
         b.resize(400, 20)
         b.move(20, 20)
-        self.usbList = ['usb1', 'usb2', 'usb3', 'usb4', 'usb5', 'usb6', 'usb7', 'usb8', 'usb9',
-                        'usb1', 'usb2', 'usb3', 'usb4', 'usb5', 'usb6', 'usb7', 'usb8', 'usb9',
-                        'usb1', 'usb2', 'usb3', 'usb4', 'usb5', 'usb6', 'usb7', 'usb8', 'usb9',
-                        'usb1', 'usb2', 'usb3', 'usb4', 'usb5', 'usb6', 'usb7', 'usb8', 'usb9']
-        # self.usbList = []
-        # self.usbList = import_data.find_usb()
-        # self.usbList = ["rep_data"]
-        # if self.usbList is []:
-        #     QMessageBox.question(self, 'Info', 'No devices detect.  Please check that they are'
-        #                                        'plugged in a try again.', QMessageBox.Close, QMessageBox.Close)
-        # else:
 
-        print(self.usbList)
+        # self.usbList = []
+        self.usbList = import_data.find_usb()
+        # self.usbList = ["rep_data"]
+        if self.usbList is []:
+            QMessageBox.question(self, 'Info', 'No devices detect.  Please '
+                                               'check that they are'
+                                               'plugged in a try again.',
+                                 QMessageBox.Close, QMessageBox.Close)
+        else:
+
+            print(self.usbList)
         self.setFixedWidth(600)
         self.setFixedHeight(500)
         findCenter = self.frameGeometry()
@@ -277,15 +288,18 @@ class popUp(QWidget):
         """
         self.getChecked()
         self.buildStatusWindow()
-        # [success, bin_files] = import_data.find_folders(self.selected)
-        # if success is False:
-        #     QMessageBox.question(self, 'No files found', QMessageBox.Ok, QMessageBox.Ok)
-        # pins = import_data.get_pins(bin_files)
-        # [times, dates, seasons] = import_data.get_creation_date(bin_files)
-        # [boolean, binary] = import_data.open_bin_files(bin_files)
-        # if boolean is False:
-        #     QMessageBox.question(self, 'Unable to properly encode files', QMessageBox.Ok, QMessageBox.Ok)
-        # [total, sort_date, sort_pin] = import_data.sort(pins, dates, times, seasons, binary)
+        [success, bin_files] = import_data.find_folders(self.namesSelected)
+        if success is False:
+            QMessageBox.question(self, 'No files found',
+                                 QMessageBox.Ok, QMessageBox.Ok)
+        pins = import_data.get_pins(bin_files)
+        [times, dates, seasons] = import_data.get_creation_date(bin_files)
+        [boolean, binary] = import_data.open_bin_files(bin_files)
+        if boolean is False:
+            QMessageBox.question(self, 'Unable to properly encode files',
+                                 QMessageBox.Ok, QMessageBox.Ok)
+        [total, sort_date, sort_pin] = import_data.sort(pins, dates, times,
+                                                        seasons, binary)
         self.close()
 
     def getChecked(self):
@@ -391,7 +405,8 @@ class StatusWindow(QWidget):
 
     def incomplete(self):
         """
-        Function that shows the downloading list while the downloading is happening
+        Function that shows the downloading list while the downloading
+        is happening
 
         Returns:
             window with downloading list
@@ -417,7 +432,8 @@ class StatusWindow(QWidget):
             else:
                 output += str('\n' + self.names[i] + '\t')
                 x = 1
-        self.done = QMessageBox.question(self, 'Complete', output, QMessageBox.Ok, QMessageBox.Ok)
+        self.done = QMessageBox.question(self, 'Complete', output,
+                                         QMessageBox.Ok, QMessageBox.Ok)
         self.close()
 
 
