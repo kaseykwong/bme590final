@@ -1,7 +1,9 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QMessageBox, QVBoxLayout, QCheckBox, QLabel, QScrollArea, QGroupBox
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QMessageBox, QVBoxLayout, QCheckBox, QLabel, QScrollArea, QGroupBox, QDesktopWidget, QGridLayout
+from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import pyqtSlot, QSize, Qt
+import import_data
+import server
 
 
 class HIEApp(QMainWindow):
@@ -9,25 +11,31 @@ class HIEApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.title = 'Head Impact Exposure'
-        self.left = 300
-        self.top = 300
-        self.width = 640
-        self.height = 400
         self.initUI()
-        self.files = ['pin 173', 'pin 463', 'pin 874']
+
+        # self.files = ['pin 173', 'pin 463', 'pin 874']
 
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setFixedHeight(600)
+        self.setFixedWidth(800)
+        findCenter = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        findCenter.moveCenter(centerPoint)
+        self.move(findCenter.topLeft())
+
+        pal = self.palette()
+        pal.setColor(self.backgroundRole(), Qt.darkCyan)
+        self.setPalette(pal)
 
         mainMenu = self.menuBar()
         fileMenu = mainMenu.addMenu('File')
-        settingsMenu = mainMenu.addMenu('Settings')
-        portMenu = settingsMenu.addMenu('Port')
-        # viewMenu = mainMenu.addMenu('View')
-        # searchMenu = mainMenu.addMenu('Search')
-        # toolsMenu = mainMenu.addMenu('Tools')
-        # helpMenu = mainMenu.addMenu('Help')
+
+        helpButton = QAction('Help', self)
+        helpButton.setStatusTip('Need assistance?')
+        helpButton.setShortcut('Ctrl+H')
+        helpButton.triggered.connect(self.helpInfo)
+        fileMenu.addAction(helpButton)
 
         exitButton = QAction(QIcon('exit24.png'), 'Exit', self)
         exitButton.setShortcut('Ctrl+Q')
@@ -35,40 +43,36 @@ class HIEApp(QMainWindow):
         exitButton.triggered.connect(self.close)
         fileMenu.addAction(exitButton)
 
-        portButton = QAction('COM1', self)
-        portButton.setStatusTip('Select port')
-        portButton.triggered.connect(self.close)
-        portMenu.addAction(portButton)
+        font1 = QFont()
+        font1.setBold(True)
+        font1.setPointSize(18)
 
-        portButton = QAction('COM2', self)
-        portButton.setStatusTip('Select port')
-        portButton.triggered.connect(self.close)
-        portMenu.addAction(portButton)
-
-        portButton = QAction('COM3', self)
-        portButton.setStatusTip('Select port')
-        portButton.triggered.connect(self.close)
-        portMenu.addAction(portButton)
-
-
-        button = QPushButton('Search for data', self)
-        button.setToolTip('testing buttons')
-        button.move(100, 70)
-        button.resize(130, 45)
+        button = QPushButton('Search for Data', self)
+        button.setToolTip('Find Devices')
+        button.setStyleSheet("background-color: white; color: blue")
+        button.setFont(font1)
+        button.move(250, 355)
+        button.resize(300, 45)
         button.clicked.connect(self.b1_click)
 
-        # self.listUSBs()
-        # self.layout = QVBoxLayout()
-        # self.layout.addWidget(self.tableWidget)
-        # self.setLayout(self.layout)
 
+        b = QLabel(self)
+        b.setText('This application can be used as a multi-unit \ndownloading, '
+                  'logging, and storage \nmanagement for the DASHR head impact \n'
+                  'exposure sensor. \nClick below to get started.')
+        b.setFont(font1)
+        b.setStyleSheet("color: white")
+        b.resize(720, 300)
+        b.move(40, 40)
 
-        # launch = QMessageBox.question(self, 'HIE', 'Launch HIE application and begin searching for data?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        # if launch == QMessageBox.Yes:
-        #     self.show()
-        # else:
-        #     self.close()
         self.show()
+
+    @pyqtSlot()
+    def helpInfo(self):
+        QMessageBox.question(self, 'Info', 'To begin, click on the Search for Data button.  You will then be '
+                                   'prompted to select devices to pull data from.  Click the Begin '
+                                   'Downloading Data button to begin transferring files from the devices '
+                                   'to the database.', QMessageBox.Close, QMessageBox.Close)
 
     @pyqtSlot()
     def table_click(self):
@@ -89,20 +93,44 @@ class HIEApp(QMainWindow):
             print("Unchecked")
 
     def buildPopUp(self):
-        self.popUp1 = popUp('Select devices to pull data from:')
-        self.popUp1.setGeometry(300, 300, 400, 400)
+        self.popUp1 = popUp()
         self.popUp1.show()
 
 
 class popUp(QWidget):
-    usbList = ['usb1', 'usb2', 'usb3', 'usb4', 'usb5', 'usb6', 'usb7', 'usb8', 'usb9']
 
-    def __init__(self, name, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.name = name
-        self.label = QLabel(self.name, self)
+
+        font3 = QFont()
+        font3.setBold(True)
+        font3.setPointSize(12)
+
+        b = QLabel(self)
+        b.setText('Select devices to download data from:')
+        b.setFont(font3)
+        b.resize(400, 20)
+        b.move(20, 20)
+        self.usbList = ['usb1', 'usb2', 'usb3', 'usb4', 'usb5', 'usb6', 'usb7', 'usb8', 'usb9',
+                        'usb1', 'usb2', 'usb3', 'usb4', 'usb5', 'usb6', 'usb7', 'usb8', 'usb9',
+                        'usb1', 'usb2', 'usb3', 'usb4', 'usb5', 'usb6', 'usb7', 'usb8', 'usb9',
+                        'usb1', 'usb2', 'usb3', 'usb4', 'usb5', 'usb6', 'usb7', 'usb8', 'usb9']
+        # self.usbList = []
+        # self.usbList = import_data.find_usb()
+        # self.usbList = ["rep_data"]
+        # if self.usbList is []:
+        #     QMessageBox.question(self, 'Info', 'No devices detect.  Please check that they are'
+        #                                        'plugged in a try again.', QMessageBox.Close, QMessageBox.Close)
+        # else:
+
+        print(self.usbList)
+        self.setFixedWidth(600)
+        self.setFixedHeight(500)
+        findCenter = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        findCenter.moveCenter(centerPoint)
+        self.move(findCenter.topLeft())
         self.initUI()
-        # self.checkList = []
 
     def initUI(self):
         self.checkList = []
@@ -112,28 +140,40 @@ class popUp(QWidget):
         self.layout_All = QVBoxLayout(self)
         self.layout_All.addWidget(self.scrollarea)
 
+        pal = self.palette()
+        pal.setColor(self.backgroundRole(), Qt.white)
+        self.setPalette(pal)
+
+        font2 = QFont()
+        font2.setBold(True)
+        font2.setPointSize(10)
+
         button2 = QPushButton('Begin \n Downloading \n Data', self)
         button2.setToolTip('download data')
-        button2.move(80, 40)
-        button2.resize(130, 55)
+        button2.setStyleSheet("background-color: green; color: white")
+        button2.setFont(font2)
+        button2.move(450, 380)
+        button2.resize(130, 70)
         button2.clicked.connect(self.download)
 
         selectAll = QPushButton('Select All', self)
         selectAll.setToolTip('download data')
-        selectAll.move(200, 70)
+        selectAll.setFont(font2)
+        selectAll.move(450, 90)
         selectAll.resize(130, 45)
         selectAll.clicked.connect(self.checkAll)
 
         deselectAll = QPushButton('Deselect All', self)
         deselectAll.setToolTip('download data')
-        deselectAll.move(300, 70)
+        deselectAll.setFont(font2)
+        deselectAll.move(450, 140)
         deselectAll.resize(130, 45)
         deselectAll.clicked.connect(self.uncheckAll)
 
         self.show()
 
     def createLayout_group(self, number):
-        sgroupbox = QGroupBox("Identified USBs", self)
+        sgroupbox = QGroupBox("Identified Devices", self)
         layout_groupbox = QVBoxLayout(sgroupbox)
         for i in range(len(self.usbList)):
             item = QCheckBox(self.usbList[i], sgroupbox)
@@ -148,8 +188,8 @@ class popUp(QWidget):
 
     def createLayout_Container(self):
         self.scrollarea = QScrollArea(self)
-        self.scrollarea.setFixedWidth(250)
-        self.scrollarea.setFixedHeight(200)
+        self.scrollarea.setFixedWidth(400)
+        self.scrollarea.setFixedHeight(400)
         self.scrollarea.setWidgetResizable(True)
 
         widget = QWidget()
@@ -180,6 +220,15 @@ class popUp(QWidget):
     def download(self):
         self.getChecked()
         self.buildStatusWindow()
+        # [success, bin_files] = import_data.find_folders(self.selected)
+        # if success is False:
+        #     QMessageBox.question(self, 'No files found', QMessageBox.Ok, QMessageBox.Ok)
+        # pins = import_data.get_pins(bin_files)
+        # [times, dates, seasons] = import_data.get_creation_date(bin_files)
+        # [boolean, binary] = import_data.open_bin_files(bin_files)
+        # if boolean is False:
+        #     QMessageBox.question(self, 'Unable to properly encode files', QMessageBox.Ok, QMessageBox.Ok)
+        # [total, sort_date, sort_pin] = import_data.sort(pins, dates, times, seasons, binary)
         self.close()
 
     def getChecked(self):
@@ -187,7 +236,6 @@ class popUp(QWidget):
         print('in getchecked')
         print(len(self.checkList))
         for x in range(len(self.checkList)):
-            print('in for loop')
             op1 = self.checkList[x]
             if op1.isChecked():
                 self.selected.append(op1)
@@ -197,7 +245,6 @@ class popUp(QWidget):
     def buildStatusWindow(self):
         print(len(self.selected))
         self.status1 = StatusWindow(self.namesSelected)
-        self.status1.setGeometry(300, 300, 400, 400)
         self.status1.show()
 
 
@@ -207,26 +254,35 @@ class StatusWindow(QWidget):
         super().__init__(parent)
         self.selected = list
         self.title = 'Head Impact Exposure'
-        self.left = 300
-        self.top = 300
-        self.width = 640
-        self.height = 400
         self.names = list
         self.done = QMessageBox
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setFixedWidth(400)
+        self.setFixedHeight(500)
+        findCenter = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        findCenter.moveCenter(centerPoint)
+        self.move(findCenter.topLeft())
+        # print(qtRectangle)
+
+        pal = self.palette()
+        pal.setColor(self.backgroundRole(), Qt.white)
+        self.setPalette(pal)
+
+        font4 = QFont()
+        font4.setBold(True)
+        font4.setPointSize(10)
+
         self.doneDownload = False
-        #self.downloadinglist = ['fake1', 'fake2']
         print(self.selected)
-        # for i in range(len(self.selected)):
-        #    self.downloadingList.append(self.selected[i])
         locx = 50
         locy = 50
         b = QLabel(self)
         b.setText("Downloading data from:")
+        b.setFont(font4)
         b.move(locx, locy)
 
         for y in range(len(self.names)):
@@ -234,35 +290,13 @@ class StatusWindow(QWidget):
             c = QLabel(self)
             c.setText(str(self.names[y]))
             c.move(locx, locy)
+            if locy > 450:
+                locx += 150
+                locy = 50
 
-        # print(len(self.downloadingList))
-
-        # cancelButton = QPushButton('Cancel', self)
-        # cancelButton.setToolTip('download data')
-        # cancelButton.move(self.width / 2 - 40, 40)
-        # cancelButton.resize(130, 55)
-        # cancelButton.clicked.connect(self.cancelDownload)
-
-        # x = 0
-        # while self.doneDownload is False:
-        # # while x > 100000000000:
-        #     # notice that downloading from usbs X, y, z
-        #     if x == 0:
-        #         self.incomplete()
-        #     x += 1
-
-        # counter = 1
-        # while counter > 0:
-        #     counter += 1
-        #     if self.doneDownload:
-        #         break
-        #     elif not self.doneDownload and counter == 2:
-        #         self.incomplete()
-
-        if self.doneDownload:
-            self.complete()
-        else:
-            self.incomplete()
+        self.incomplete()
+        # check the timing of this without a while loop when actually running
+        self.complete()
 
         # self.complete()
         # if self.done == QMessageBox.Ok:
@@ -270,12 +304,18 @@ class StatusWindow(QWidget):
 
     def incomplete(self):
         self.show()
-        # self.doneDownload = True
+        # self.close()
 
     def complete(self):
-        output = 'Successfuly downloaded data from:'
+        output = 'Successfuly downloaded data from: \n'
+        x = 0
         for i in range(len(self.names)):
-            output += str('\n' + self.names[i])
+            if x <= 3:
+                output += str(self.names[i] + '\t')
+                x += 1
+            else:
+                output += str('\n' + self.names[i] + '\t')
+                x = 1
         self.done = QMessageBox.question(self, 'Complete', output, QMessageBox.Ok, QMessageBox.Ok)
         self.close()
 
