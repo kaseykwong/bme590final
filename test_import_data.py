@@ -7,11 +7,11 @@ import base64
 def test_find_folders():
     path = ['rep_data']
     [boolean, file_names] = find_folders(path)
-    assert [boolean, file_names] == [True, ['rep_data/L11.BIN',
-                                            'rep_data/L12.BIN',
+    assert [boolean, file_names] == [True, ['rep_data/L1.BIN',
+                                            'rep_data/L11.BIN',
+                                            'rep_data/L2.BIN',
                                             'rep_data/L0.BIN',
-                                            'rep_data/L1.BIN',
-                                            'rep_data/L2.BIN']]
+                                            'rep_data/L12.BIN']]
     path2 = []
     [boolean2, file_names2] = find_folders(path2)
     assert [boolean2, file_names2] == [False, []]
@@ -29,17 +29,13 @@ def test_get_pins():
 def test_get_creation_date():
     file_path1 = ['rep_data/L0.BIN']
     [time1, date1, year1] = get_creation_date(file_path1)
-    assert [time1, date1, year1] == [['20:35:38'], ['12-06-2018'], [2018]]
-
-    file_path2 = ['rep_data/L1.BIN']
-    [time2, date2, year2] = get_creation_date(file_path2)
-    assert [time2, date2, year2] == [['20:35:38'], ['12-06-2018'], [2018]]
+    assert date1 == ['12-13-2018']
+    assert year1 == [2018]
 
     file_path3 = ['rep_data/L0.BIN', 'rep_data/L1.BIN']
     [time3, date3, year3] = get_creation_date(file_path3)
-    assert [time3, date3, year3] == [['20:35:38', '20:35:38'],
-                                     ['12-06-2018', '12-06-2018'],
-                                     [2018, 2018]]
+    assert date3 == ['12-13-2018', '12-13-2018']
+    assert year3 == [2018, 2018]
 
 
 def test_open_bin_files():
@@ -62,7 +58,7 @@ def test_sort():
     date1 = ['10-05-1994', '10-05-1994', '10-07-1994']
     time1 = ['00:00:00', '00:00:01', '00:00:02']
     season1 = ['1994', '1994', '1994']
-    bin1 = ['abc', 'def', 'ghi']
+    bin1 = [b'abc', b'def', b'ghi']
     [overall1, sort_date1, sort_pin1] = sort(pin1, date1, time1, season1, bin1)
     assert [overall1.loc[0, "Pin"], sort_date1[0][0], sort_pin1[0][0]] == \
            ['123', '10-05-1994', '123']
