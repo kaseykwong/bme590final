@@ -71,9 +71,9 @@ class HIEApp(QMainWindow):
         b = QLabel(self)
         b.setText('This application can be used as a multi-unit \n'
                   'downloading, '
-                  'logging, and storage \nmanagement '
-                  'for the DASHR head impact \n'
-                  'exposure sensor. \nClick below to get started.')
+                  'logging, and storage \nmanagement tool '
+                  'for the DASHR head \nimpact '
+                  'exposure sensor. \n\nClick below to get started.')
         b.setFont(font1)
         b.setStyleSheet("color: white")
         b.resize(720, 300)
@@ -149,9 +149,7 @@ class popUp(QWidget):
         b.resize(400, 20)
         b.move(20, 20)
 
-        # self.usbList = []
         self.usbList = import_data.find_usb()
-        # self.usbList = ["rep_data"]
         if self.usbList is []:
             QMessageBox.question(self, 'Info', 'No devices detect.  Please '
                                                'check that they are'
@@ -200,14 +198,14 @@ class popUp(QWidget):
         button2.clicked.connect(self.download)
 
         selectAll = QPushButton('Select All', self)
-        selectAll.setToolTip('download data')
+        selectAll.setToolTip('select all devices')
         selectAll.setFont(font2)
         selectAll.move(450, 90)
         selectAll.resize(130, 45)
         selectAll.clicked.connect(self.checkAll)
 
         deselectAll = QPushButton('Deselect All', self)
-        deselectAll.setToolTip('download data')
+        deselectAll.setToolTip('deselect all devices')
         deselectAll.setFont(font2)
         deselectAll.move(450, 140)
         deselectAll.resize(130, 45)
@@ -328,8 +326,8 @@ class popUp(QWidget):
 
         """
         print(len(self.selected))
+        self.close()
         self.status1 = StatusWindow(self.namesSelected)
-        self.status1.show()
 
 
 class StatusWindow(QWidget):
@@ -395,35 +393,20 @@ class StatusWindow(QWidget):
                 locx += 150
                 locy = 50
 
-        self.incomplete()
-        # check the timing of this without a while loop when actually running
-        self.complete()
-
-        # self.complete()
-        # if self.done == QMessageBox.Ok:
-        #     self.close()
-
-    def incomplete(self):
-        """
-        Function that shows the downloading list while the downloading
-        is happening
-
-        Returns:
-            window with downloading list
-
-        """
         self.show()
-        # self.close()
+        self.complete()
 
     def complete(self):
         """
         Function that alerts the user when the download has completed
+            successfully
 
         Returns:
             QMessageBox: with list of devices data was downloaded from
 
         """
-        output = 'Successfuly downloaded data from: \n'
+        self.close()
+        output = 'Successfully downloaded data from: \n'
         x = 0
         for i in range(len(self.names)):
             if x <= 3:
@@ -434,7 +417,6 @@ class StatusWindow(QWidget):
                 x = 1
         self.done = QMessageBox.question(self, 'Complete', output,
                                          QMessageBox.Ok, QMessageBox.Ok)
-        self.close()
 
 
 if __name__ == '__main__':
