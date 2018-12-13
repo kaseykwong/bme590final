@@ -6,6 +6,7 @@ import requests
 from datetime import datetime
 import logging
 
+
 connect("mongodb://almostdone:2tired@ds145148.mlab.com:45148/bme590final")
 app = Flask(__name__)
 
@@ -21,8 +22,10 @@ class HeadData(MongoModel):
 @app.route("/api/download", methods=["POST"])
 def download():
     """
-    Flask server function to download individual files with parsed data
-    :return:
+    Function downloads individual BIN files to server
+
+    Returns:
+        msg: status message of file download
     """
     set_logging()
     files = request.get_json()
@@ -35,7 +38,7 @@ def download():
             t = files['Time']
             hd = HeadData(szn, pin, date, data, t)
             hd.save()
-            file_info = {'Pin': pin,
+            file_info = {'pin_number': pin,
                          'Year': szn,
                          'Date': date,
                          'Time': t,
@@ -57,10 +60,15 @@ def download():
 
 def download_all(files):
     """
-    Client Function to iterate thru all parsed and encoded files to download
-    :param files:
-    :return:
+    Client Function downloads all .BIN folders in given
+    Pandas dataframe
+
+    Args:
+        files: datafram of all files
+    Returns:
+        result: boolean to determine if all files completed
     """
+    # count = 0
     for row in files.itertuples():
         pin = getattr(row, "Pin")
         date = getattr(row, "Date")
@@ -71,17 +79,33 @@ def download_all(files):
                      "Date": date,
                      "Time": time,
                      "Year": year,
-                     "Encoded .BIN file": data}
+                     "Encoded .BIN file": data
+                     }
+        # file_check = {'Pin': pin,
+        #               'Date': date,
+        #               'Time': time
+        #               }
+        # if check_input(file_info) is True:
+        #     if check_exist(file_check) is False:
+        #         count = count + 1
+        #     else:
+        #         count = count
         r = requests.post("http://127.0.0.1:5000/api/download", json=file_info)
-    msg = "All files downloaded"
-    return msg
+        # print(count)
+    # set_logging()
+    # logging.info(str(count)+" new files.")
+    return True
 
 
 def check_input(file_info):
     """
-    Check types and values of file input parameters
-    :param file_info:
-    :return:
+    Function finds all .BIN folders in given path
+
+    Args:
+        file_info: dictionary with individual file information
+        Pin, Date, Time, Year, Encoded .BIN file
+    Returns:
+        result: boolean to determine if file inputs were appropriate type
     """
     pin = file_info['Pin']
     date = file_info['Date']
@@ -122,17 +146,25 @@ def check_input(file_info):
 
 def check_exist(file_info):
     """
-    Check if the particular file recorded at specific time for pin number already exists in database
-    :param file_info:
-    :return:
+    Function checks if file already exists in database
+
+    Args:
+        file_info: file info dictionary
+        Pin, Date, Time, Year, Encoded .BIN file
+    Returns:
+        result: boolean to determine if file was found.
+                True is file was found. False if not.
     """
     pin = file_info['Pin']
     date = file_info['Date']
     time_in = file_info['Time']
     try:
-        HeadData.objects.raw({"date_measured": date,
-                              "time": time_in,
-                              "pin_number": str(pin)}).first()
+        # HeadData.objects.raw({"date_measured": date,
+        #                       "time": time_in,
+        #                       "pin_number": str(pin)}).first()
+        HeadData.objects.raw({"pin_number": str(pin),
+                              "date_measured": date,
+                              "time": time_in}).first()
     except pymodm.errors.DoesNotExist:
         return False
     return True
@@ -140,10 +172,14 @@ def check_exist(file_info):
 
 def create_new(file_info):
     """
-    Unnecessary function to create a new file in the database.
-    functionality exists in Flask Post function "download"
-    :param file_info:
-    :return:
+    Non flask function to create new database file
+    not necessary for server to run
+
+    Args:
+        file_info: file info dictionary
+        Pin, Date, Time, Year, Encoded .BIN file
+    Returns:
+        result: hd, HeadData object created
     """
     set_logging()
     pin = file_info['Pin']

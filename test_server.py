@@ -87,11 +87,14 @@ def test_input():
 
 
 # def test_all():
-#     filename = [5, 5, 5, 6, 6, 6]
-#     date = ["10-2-2016", "10-2-2016", "10-2-2016", "10-2-2016", "10-2-2016", "10-2-2016"]
-#     time = ["10:10:29", "10:10:32", "10:10:40", "10:10:50", "10:10:55", "10:10:59"]
+#     filename = [7, 7, 7, 5, 5, 5]
+#     date = ["10-2-2016", "10-2-2016", "10-2-2016", "10-2-2016",
+#  "10-2-2016", "10-2-2016"]
+#     time = ["10:10:29", "10:10:32", "10:10:40", "10:10:50",
+#  "10:10:55", "10:10:59"]
 #     season = [2016, 2016, 2016, 2016, 2016, 2016]
-#     spy = ["ASDFAEGIAEG", "ASDFOAEWG", "ADSGA", "WEGIEHG", "ASGIAB", "AEGIABN"]
+#     spy = ["ASDFAEGIAEG", "ASDFOAEWG", "ADSGA", "WEGIEHG",
+#  "ASGIAB", "AEGIABN"]
 #     input1 = pd.DataFrame({
 #         "Pin": filename,
 #         "Date": date,
@@ -99,8 +102,8 @@ def test_input():
 #         "Year": season,
 #         "Encoded .BIN file": spy
 #         })
-#     msg = "All files downloaded"
-#     assert download_all(input1) == msg
+#     print(download_all(input1))
+#     #  assert download_all(input1) == msg
 
 
 if __name__ == "__main__":
