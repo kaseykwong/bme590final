@@ -1,5 +1,6 @@
-name: final4-test-environment
+name: final16-test-environment
 dependencies:
+        - python
         - flask
         - pytest
         - ipython
