@@ -7,11 +7,11 @@ import base64
 def test_find_folders():
     path = ['rep_data']
     [boolean, file_names] = find_folders(path)
-    assert [boolean, file_names] == [True, ['rep_data/L11.BIN',
-                                            'rep_data/L12.BIN',
+    assert [boolean, file_names] == [True, ['rep_data/L1.BIN',
+                                            'rep_data/L11.BIN',
+                                            'rep_data/L2.BIN',
                                             'rep_data/L0.BIN',
-                                            'rep_data/L1.BIN',
-                                            'rep_data/L2.BIN']]
+                                            'rep_data/L12.BIN']]
     path2 = []
     [boolean2, file_names2] = find_folders(path2)
     assert [boolean2, file_names2] == [False, []]
