@@ -20,4 +20,6 @@ database and put the address in the connect function at the top of server.py.
 
 Side-note: The server creates a data_server.txt file which will log the data downloaded for the user's reference. 
 
+[Final Project Video](https://youtu.be/A6nqwQXlH64)
+
 [![Build Status](https://travis-ci.com/kaseykwong/bme590final.svg?branch=master)](https://travis-ci.com/kaseykwong/bme590final)
