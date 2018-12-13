@@ -7,15 +7,26 @@ import server
 
 
 class HIEApp(QMainWindow):
+    """
+    Class for the main application window -- serves as homepage
+    """
 
     def __init__(self):
+        """
+        Function that initiates the main window
+        """
         super().__init__()
         self.title = 'Head Impact Exposure'
         self.initUI()
 
-        # self.files = ['pin 173', 'pin 463', 'pin 874']
-
     def initUI(self):
+        """
+        Function initializes the user interface for the main window
+
+        Returns:
+            QMainWindow: home screen with button to begin searching for data
+
+        """
         self.setWindowTitle(self.title)
         self.setFixedHeight(600)
         self.setFixedWidth(800)
@@ -69,38 +80,52 @@ class HIEApp(QMainWindow):
 
     @pyqtSlot()
     def helpInfo(self):
+        """
+        Function creates message box with information on how to use application
+
+        Returns:
+            QMessageBox: with info on how to use application
+
+        """
         QMessageBox.question(self, 'Info', 'To begin, click on the Search for Data button.  You will then be '
                                    'prompted to select devices to pull data from.  Click the Begin '
                                    'Downloading Data button to begin transferring files from the devices '
                                    'to the database.', QMessageBox.Close, QMessageBox.Close)
 
     @pyqtSlot()
-    def table_click(self):
-        print("\n")
-        print(self.tableWidget.selectedItems())
-
-    @pyqtSlot()
     def b1_click(self):
-        launch = QMessageBox.question(self, 'HIE', 'Launch HIE application and begin searching for data?',
+        """
+        Function creates message box to confirm user is ready to begin
+
+        Returns:
+            QMessageBox: asking the user to confirm that all necessary devices are connected
+
+        """
+        launch = QMessageBox.question(self, 'Ready?', 'Are all of the necessary devices plugged in?',
                                       QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if launch == QMessageBox.Yes:
             self.buildPopUp()
 
-    def clickBox(self, state):
-        if state == Qt.Checked:
-            print("Checked")
-        else:
-            print("Unchecked")
-
     def buildPopUp(self):
+        """
+        Function initiates the creation of the next pop-up window
+
+        Returns:
+            popUp: window prompting user to select devices to import from
+        """
         self.popUp1 = popUp()
         self.popUp1.show()
 
 
 class popUp(QWidget):
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    """
+    Class for pop-up window prompting user to select devices to download from
+    """
+    def __init__(self):
+        """
+        Function that initiates the pop-up window
+        """
+        super().__init__()
 
         font3 = QFont()
         font3.setBold(True)
@@ -133,6 +158,13 @@ class popUp(QWidget):
         self.initUI()
 
     def initUI(self):
+        """
+        Function that initiates the user interface for the pop-up window
+
+        Returns:
+            QWindow: lets users select devices to pull from
+
+        """
         self.checkList = []
         self.selected = []
         self.namesSelected = []
@@ -172,7 +204,14 @@ class popUp(QWidget):
 
         self.show()
 
-    def createLayout_group(self, number):
+    def createLayout_group(self):
+        """
+        Function creates list of checkboxes for each discovered device
+
+        Returns:
+            sgroupbox: a QGroupBox containing the checklist
+
+        """
         sgroupbox = QGroupBox("Identified Devices", self)
         layout_groupbox = QVBoxLayout(sgroupbox)
         for i in range(len(self.usbList)):
@@ -181,12 +220,16 @@ class popUp(QWidget):
             self.checkList.append(item)
             print(len(self.checkList))
         layout_groupbox.addStretch(1)
-        for x in range(len(self.checkList)):
-            op1 = self.checkList[x]
-            op1.stateChanged.connect(self.pickPort)
         return sgroupbox
 
     def createLayout_Container(self):
+        """
+        Function creates a scroll area for the checklist to be presented in
+
+        Returns:
+            QScrollArea: on the pop-up window containing checklist of devices
+
+        """
         self.scrollarea = QScrollArea(self)
         self.scrollarea.setFixedWidth(400)
         self.scrollarea.setFixedHeight(400)
@@ -196,28 +239,42 @@ class popUp(QWidget):
         self.scrollarea.setWidget(widget)
         self.layout_SArea = QVBoxLayout(widget)
 
-        for i in range(1):
-            self.layout_SArea.addWidget(self.createLayout_group(i))
+        self.layout_SArea.addWidget(self.createLayout_group())
         self.layout_SArea.addStretch(1)
 
-    def pickPort(self, state):
-        if state == Qt.Checked:
-            print("Checked")
-        else:
-            print("Unchecked")
-
     def checkAll(self):
+        """
+        Function selects all devices on list
+
+        Returns:
+            all checkboxes in Checked state
+
+        """
         for x in range(len(self.checkList)):
             op1 = self.checkList[x]
             op1.setChecked(True)
 
     def uncheckAll(self):
+        """
+        Function deselects all devices on list
+
+        Returns:
+            all checkboxes not in Checked state
+
+        """
         for x in range(len(self.checkList)):
             op1 = self.checkList[x]
             op1.setChecked(False)
 
     @pyqtSlot()
     def download(self):
+        """
+        Function initiates download of data from devices to database
+
+        Returns:
+            files transferred to database
+
+        """
         self.getChecked()
         self.buildStatusWindow()
         # [success, bin_files] = import_data.find_folders(self.selected)
@@ -232,7 +289,13 @@ class popUp(QWidget):
         self.close()
 
     def getChecked(self):
-        # selected = []
+        """
+        Function makes a list of all checkboxes/devices that the user selected
+
+        Returns:
+            adds all selected devices to self.selected and self.namesSelected
+
+        """
         print('in getchecked')
         print(len(self.checkList))
         for x in range(len(self.checkList)):
@@ -243,22 +306,47 @@ class popUp(QWidget):
                 print(op1)
 
     def buildStatusWindow(self):
+        """
+        Function calls for the status window to be built
+
+        Returns:
+            status window
+
+        """
         print(len(self.selected))
         self.status1 = StatusWindow(self.namesSelected)
         self.status1.show()
 
 
 class StatusWindow(QWidget):
+    """
+    Class to create a window that informs the user of the devices data is
+        being pulled from during the downloading process
+    """
 
-    def __init__(self, list, parent=None):
-        super().__init__(parent)
+    def __init__(self, list1):
+        """
+        Function initiates StatusWindow
+
+        Args:
+            list1: list containing the names of the devices data is being
+                downloaded from
+        """
+        super().__init__()
         self.selected = list
         self.title = 'Head Impact Exposure'
-        self.names = list
+        self.names = list1
         self.done = QMessageBox
         self.initUI()
 
     def initUI(self):
+        """
+        Function initiates the user interface of the status window
+
+        Returns:
+            QWindow: containing a list of the devices data is being pulled from
+
+        """
         self.setWindowTitle(self.title)
         self.setFixedWidth(400)
         self.setFixedHeight(500)
@@ -266,7 +354,6 @@ class StatusWindow(QWidget):
         centerPoint = QDesktopWidget().availableGeometry().center()
         findCenter.moveCenter(centerPoint)
         self.move(findCenter.topLeft())
-        # print(qtRectangle)
 
         pal = self.palette()
         pal.setColor(self.backgroundRole(), Qt.white)
@@ -303,10 +390,24 @@ class StatusWindow(QWidget):
         #     self.close()
 
     def incomplete(self):
+        """
+        Function that shows the downloading list while the downloading is happening
+
+        Returns:
+            window with downloading list
+
+        """
         self.show()
         # self.close()
 
     def complete(self):
+        """
+        Function that alerts the user when the download has completed
+
+        Returns:
+            QMessageBox: with list of devices data was downloaded from
+
+        """
         output = 'Successfuly downloaded data from: \n'
         x = 0
         for i in range(len(self.names)):
